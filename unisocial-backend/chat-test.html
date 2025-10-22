@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat WebSocket Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>Chat WebSocket Test</h2>
+
+<label>JWT Token:</label><br>
+<input type="text" id="jwt" size="80" placeholder="Paste your JWT here"><br><br>
+
+<label>Chat Room ID:</label><br>
+<input type="number" id="chatRoomId" value="1"><br><br>
+
+<button onclick="connect()">Connect & Subscribe</button><br><br>
+
+<textarea id="messages" rows="15" cols="100" readonly placeholder="Received messages will appear here"></textarea><br><br>
+
+<input type="text" id="msgInput" size="80" placeholder="Type message to send">
+<button onclick="sendMessage()">Send Message</button>
+
+<script>
+let stompClient = null;
+
+function connect() {
+  const token = document.getElementById('jwt').value.trim();
+  const chatRoomId = document.getElementById('chatRoomId').value;
+
+  if (!token) {
+    alert('Please enter JWT token!');
+    return;
+  }
+
+  const socket = new SockJS('http://localhost:8080/ws/chat');
+  stompClient = Stomp.over(socket);
+
+  stompClient.connect(
+    { Authorization: 'Bearer ' + token },
+    function(frame) {
+      appendMessage('Connected to WebSocket!');
+
+      // Subscribe to chat room
+      stompClient.subscribe('/topic/chatroom/' + chatRoomId, function(message) {
+        appendMessage('Received: ' + message.body);
+      });
+    },
+    function(error) {
+      appendMessage('Connection error: ' + error);
+    }
+  );
+}
+
+async function sendMessage() {
+  const token = document.getElementById('jwt').value.trim();
+  const chatRoomId = document.getElementById('chatRoomId').value;
+  const content = document.getElementById('msgInput').value.trim();
+  if (!content) return;
+
+  try {
+    const res = await fetch('http://localhost:8080/api/chat/' + chatRoomId + '/message', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content })
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      appendMessage('Send failed: ' + text);
+    }
+  } catch (e) {
+    appendMessage('Error: ' + e.message);
+  }
+
+  document.getElementById('msgInput').value = '';
+}
+
+function appendMessage(msg) {
+  const messagesArea = document.getElementById('messages');
+  messagesArea.value += msg + '\n';
+  messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+</script>
+</body>
+</html>
