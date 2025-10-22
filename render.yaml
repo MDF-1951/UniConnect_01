@@ -1,10 +1,10 @@
-# Render Configuration for UniConnect Backend
+# Render Configuration for UniConnect Backend (Docker)
 services:
   - type: web
     name: unisocial-backend
-    env: java
-    buildCommand: cd unisocial-backend && ./mvnw clean package -DskipTests
-    startCommand: cd unisocial-backend && java -jar target/unisocial-backend-0.0.1-SNAPSHOT.jar
+    runtime: docker
+    dockerfilePath: ./unisocial-backend/Dockerfile
+    dockerContext: ./unisocial-backend
     envVars:
       - key: DATABASE_URL
         fromDatabase:
