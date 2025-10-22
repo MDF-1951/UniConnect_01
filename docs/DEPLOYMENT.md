@@ -1,12 +1,12 @@
 # 🚀 Deployment Guide - UniConnect
 
-This guide will help you deploy UniConnect to production using Vercel (Frontend) + Railway (Backend).
+This guide will help you deploy UniConnect to production using Vercel (Frontend) + Render (Backend).
 
 ## 📋 Prerequisites
 
 - GitHub account
 - Vercel account (free)
-- Railway account (free)
+- Render account (free)
 - Git installed locally
 
 ## 🏗️ Project Structure
@@ -28,12 +28,12 @@ UniConnect/
 └── README.md
 ```
 
-## 🌐 Step 1: Deploy Backend to Railway
+## 🌐 Step 1: Deploy Backend to Render
 
 ### 1.1 Prepare Backend Repository
 ```bash
 # Navigate to backend directory
-cd backend
+cd unisocial-backend
 
 # Build the project
 ./mvnw clean package -DskipTests
@@ -42,44 +42,45 @@ cd backend
 ls target/*.jar
 ```
 
-### 1.2 Deploy to Railway
-1. Go to [railway.app](https://railway.app)
+### 1.2 Deploy to Render
+1. Go to [render.com](https://render.com)
 2. Sign up with GitHub
-3. Click "New Project" → "Deploy from GitHub repo"
-4. Select your UniConnect repository
-5. Set the **Root Directory** to `backend`
-6. Railway will auto-detect it's a Spring Boot project
+3. Click "New" → "Web Service"
+4. Connect your UniConnect repository
+5. Render will auto-detect it's a Spring Boot project
 
-### 1.3 Add MySQL Database
-1. In Railway dashboard, click "New" → "Database" → "MySQL"
-2. Copy the connection details
-3. Go to your backend service → Variables tab
-4. Add these environment variables:
+### 1.3 Add PostgreSQL Database
+1. In Render dashboard, click "New" → "PostgreSQL"
+2. Name it `unisocial-db`
+3. Copy the connection details
+4. Go to your backend service → Environment tab
+5. Add these environment variables:
 
 ```bash
-# Database Configuration
-DATABASE_URL=mysql://user:password@host:port/database
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+# Database Configuration (auto-configured by render.yaml)
+DATABASE_URL=postgresql://user:password@host:port/database
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-32-character-key-here
 
 # Frontend URL (update after frontend deployment)
 FRONTEND_URL=https://your-frontend.vercel.app
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=prod
 ```
 
 ### 1.4 Deploy Backend
-1. Railway will automatically build and deploy
+1. Render will automatically build and deploy using `render.yaml`
 2. Wait for deployment to complete
-3. Copy the backend URL (e.g., `https://unisocial-backend.railway.app`)
+3. Copy the backend URL (e.g., `https://unisocial-backend.onrender.com`)
 
 ## 🎨 Step 2: Deploy Frontend to Vercel
 
 ### 2.1 Prepare Frontend
 ```bash
 # Navigate to frontend directory
-cd frontend
+cd unisocial-frontend
 
 # Install dependencies
 npm install
@@ -94,7 +95,7 @@ npm run build
 3. Click "New Project" → Import your UniConnect repository
 4. Configure the project:
    - **Framework Preset**: Create React App
-   - **Root Directory**: `frontend`
+   - **Root Directory**: `unisocial-frontend`
    - **Build Command**: `npm run build`
    - **Output Directory**: `build`
 
@@ -102,7 +103,7 @@ npm run build
 In Vercel dashboard → Project Settings → Environment Variables:
 
 ```bash
-REACT_APP_API_URL=https://your-backend.railway.app
+REACT_APP_API_URL=https://your-backend.onrender.com
 ```
 
 ### 2.4 Deploy Frontend
@@ -113,21 +114,21 @@ REACT_APP_API_URL=https://your-backend.railway.app
 ## 🔄 Step 3: Update CORS Configuration
 
 ### 3.1 Update Backend CORS
-1. Go to Railway dashboard → Backend service → Variables
+1. Go to Render dashboard → Backend service → Environment
 2. Update `FRONTEND_URL` with your actual Vercel URL:
 ```bash
 FRONTEND_URL=https://your-frontend.vercel.app
 ```
 
 ### 3.2 Redeploy Backend
-Railway will automatically redeploy when you update environment variables.
+Render will automatically redeploy when you update environment variables.
 
 ## ✅ Step 4: Test Deployment
 
 ### 4.1 Test Backend
 ```bash
 # Test API health
-curl https://your-backend.railway.app/api/auth/test
+curl https://your-backend.onrender.com/api/auth/test
 
 # Expected response:
 # {"status":"API is working","message":"UniConnect Backend is running","timestamp":1234567890}
@@ -202,10 +203,15 @@ curl http://localhost:8080/api/auth/test
 
 | Service | Plan | Monthly Cost |
 |---------|------|--------------|
-| Railway (Backend) | Hobby | $5 |
-| Railway (Database) | Hobby | $5 |
+| Render (Backend) | Free | $0 |
+| Render (Database) | Free | $0 |
 | Vercel (Frontend) | Free | $0 |
-| **Total** | | **$10/month** |
+| **Total** | | **$0/month** |
+
+### 🎉 **Completely Free Hosting!**
+- ✅ **Render**: 750 hours/month (enough for small apps)
+- ✅ **Vercel**: Unlimited deployments
+- ✅ **No time limits** on free tiers
 
 ## 🚀 Next Steps
 

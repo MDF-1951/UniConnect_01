@@ -1,0 +1,23 @@
+# Render Configuration for UniConnect Backend
+services:
+  - type: web
+    name: unisocial-backend
+    env: java
+    buildCommand: cd unisocial-backend && ./mvnw clean package -DskipTests
+    startCommand: cd unisocial-backend && java -jar target/unisocial-backend-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: unisocial-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://your-frontend.vercel.app
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+databases:
+  - name: unisocial-db
+    databaseName: unisocial
+    user: unisocial
